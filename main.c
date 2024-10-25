@@ -1,113 +1,43 @@
+#include "scanner.h"
 #include "utils.h"
+#include<omp.h>
 
-#define MAX_ATOMIC 64
-
-typedef struct TreeNode {
-    char* expr;
-    struct TreeNode* prev;
-    struct TreeNode* next;
-
-} TreeNode;
-
-void printTree(TreeNode* root)
-{
-    if (root == NULL) return;
-    printf("  %s\n", root->expr);
-    //if (root->prev != NULL)
-       // printf("\t|\n");
-    printTree(root->prev);
-}
-
-TreeNode* newNode(char* expr)
-{
-    TreeNode* new = (TreeNode*)malloc(sizeof(TreeNode));
-    if (new != NULL)
-    {
-        new->expr = (char*)malloc((strlen(expr) + 1)*sizeof(char));
-        if (new->expr != NULL)
-            strcpy(new->expr, expr);
-        new->prev = NULL;
-        new->next = NULL;
-        return new;
-    }
-    return NULL;
-}
-
-TreeNode* pushToTree(TreeNode* node, char* expr)
-{
-    if (node == NULL) // Se a arvore esta vazia
-        return newNode(expr); // Cria o nodo raiz
-    else 
-    {
-        if (strlen(expr) < strlen(node->expr))
-        {
-            node->prev = pushToTree(node->prev, expr);
-        } else { 
-            node->next = pushToTree(node->next, expr);
-        }
-    }
-    return node;
-}
-
-bool isAtomic(char c)
-{
-    if (c >= 'A' && c <= 'Z')
-        return true;
-    return false;
-}
-
-void checkParenthesis(char* expr)
-{
-    int* parenthesisIndex = (int*)malloc(strlen*(sizeof(char) + 1);
-
-    for(int i=0; i<strlen(expr); i++)
-    {
-        if (expr[i] == '(')
-        {
-            parenthesisIndex[i] = i;
-        } else if (expr[i] == )
-        {
-            parenthesisIndex[i]
-        }
-        
-    }
-}
-
-void analyseExpr(char* expr)
-{
-    int * atomicForms = (int*)malloc(MAX_ATOMIC*sizeof(int));
-    int j = 0;;
-    for(int i=0; i<strlen(expr); i++)
-    {
-        // if (isAtomic(expr[i]) == true)
-        // {
-        //     printf("Is Atomic: %c\n", expr[i]);
-        //     atomicForms[j] = expr[i];
-        //     j++;
-        // } 
-        
-    }
-}
-
-char* operation(TreeNode** node, char* expr)
-{
-
-}
+bool DEBUG = true;
 
 int main(int argc, char* argv[])
 {
-    char expr[] = "(A v B)";
-    //char expr2[] = "~(P<=>Q)";
-    //char expr3[] = "~P^Q";
+    char expr[] = "(P -> Q) v ~P";
+    rmspc(expr);
+    printf("%s\n", expr);
 
-    analyseExpr(expr);
+    TokenStack* stack = NULL;
+    Token* token;
+    for(int i = 0; i < strlen(expr); i++)
+    {
+        token = scanToken(expr[i]);
+        stack = push(stack, token);
 
-    //TreeNode* root = NULL;
-    //root = pushToTree(root, expr);
-    //root = pushToTree(root, expr2);
-    //root = pushToTree(root, expr3);
+        //setDepth(token, &depth);
+    }
 
-    //printTree(root);
+    int depth = 0;
 
+    for(TokenStack* p = stack; p != NULL; p = p->next)
+    {
+        //setDepth(p, p->token->depth);
+        if (p->token->type == TOKEN_LEFT_PAREN)
+        {
+            depth--;
+        }
+        if (p->token->type == TOKEN_RIGHT_PAREN)
+        {
+            depth++;
+        }
+        p->token->depth = depth;
+
+    }
+
+    printStack(stack);
+    printf("end\n");
     return 0;
 }

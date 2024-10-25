@@ -1,5 +1,11 @@
 #include "utils.h"
 
+void printVector(int* v, int n)
+{
+    for(int i = 0; i < MAX_CANDIDATES; i++)
+        printf("%d\n", v[i]);
+}
+
 void rmspc(char *str)
 {
     if (*str == '\0')
